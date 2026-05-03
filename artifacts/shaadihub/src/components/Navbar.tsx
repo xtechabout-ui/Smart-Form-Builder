@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Heart, Menu, X, ChevronDown, User, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
+import { Heart, Menu, X, ChevronDown, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+
+const NAV_LINKS = [
+  { label: "Venues", href: "/vendors?category=Marriage%20Hall" },
+  { label: "Vendors", href: "/vendors" },
+  { label: "Photography", href: "/vendors?category=Photography" },
+  { label: "Inspiration", href: "/vendors?category=Decoration" },
+];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -20,13 +27,31 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 group">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
             <div className="w-8 h-8 rose-gradient rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
               <Heart className="w-4 h-4 text-white fill-white" />
             </div>
             <span className="font-display text-xl font-bold text-rose-600">ShaadiHub</span>
           </Link>
 
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => {
+              const active = location === link.href || location.startsWith(link.href.split("?")[0]);
+              return (
+                <Link key={link.label} href={link.href}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    active ? "bg-rose-50 text-rose-600" : "text-gray-600 hover:text-rose-600 hover:bg-rose-50"
+                  }`}>
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Auth area */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="relative">
@@ -75,17 +100,18 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="ghost" size="sm" className="text-gray-600">Sign In</Button>
+                  <Button variant="ghost" size="sm" className="text-gray-600 font-medium">Sign In</Button>
                 </Link>
                 <Link href="/register">
-                  <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-xl">
-                    Get Started
+                  <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold px-5">
+                    List Your Business
                   </Button>
                 </Link>
               </>
             )}
           </div>
 
+          {/* Mobile hamburger */}
           <button
             data-testid="mobile-menu-button"
             className="md:hidden p-2 rounded-lg hover:bg-rose-50"
@@ -96,36 +122,44 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-rose-100 px-4 py-4 space-y-2">
-          <Link href="/vendors" onClick={() => setMobileOpen(false)}
-            className="block py-2 text-sm font-medium text-gray-700 hover:text-rose-600">Find Vendors</Link>
-          {user ? (
-            <>
-              {user.role === "user" && (
-                <Link href="/dashboard" onClick={() => setMobileOpen(false)}
-                  className="block py-2 text-sm font-medium text-gray-700 hover:text-rose-600">My Dashboard</Link>
-              )}
-              {(user.role === "vendor" || user.role === "admin") && (
-                <Link href="/vendor/dashboard" onClick={() => setMobileOpen(false)}
-                  className="block py-2 text-sm font-medium text-gray-700 hover:text-rose-600">Vendor Dashboard</Link>
-              )}
-              {user.role === "admin" && (
-                <Link href="/admin" onClick={() => setMobileOpen(false)}
-                  className="block py-2 text-sm font-medium text-gray-700 hover:text-rose-600">Admin Panel</Link>
-              )}
-              <button onClick={handleLogout} className="block w-full text-left py-2 text-sm font-medium text-red-600">Sign Out</button>
-            </>
-          ) : (
-            <div className="flex gap-3 pt-2">
-              <Link href="/login" onClick={() => setMobileOpen(false)} className="flex-1">
-                <Button variant="outline" size="sm" className="w-full">Sign In</Button>
-              </Link>
-              <Link href="/register" onClick={() => setMobileOpen(false)} className="flex-1">
-                <Button size="sm" className="w-full bg-rose-500 hover:bg-rose-600 text-white">Get Started</Button>
-              </Link>
-            </div>
-          )}
+        <div className="md:hidden bg-white border-t border-rose-100 px-4 py-4 space-y-1">
+          {NAV_LINKS.map((link) => (
+            <Link key={link.label} href={link.href} onClick={() => setMobileOpen(false)}
+              className="block py-2.5 px-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-600">
+              {link.label}
+            </Link>
+          ))}
+          <div className="pt-2 border-t border-gray-100 mt-2">
+            {user ? (
+              <>
+                {user.role === "user" && (
+                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}
+                    className="block py-2.5 px-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-600">My Dashboard</Link>
+                )}
+                {(user.role === "vendor" || user.role === "admin") && (
+                  <Link href="/vendor/dashboard" onClick={() => setMobileOpen(false)}
+                    className="block py-2.5 px-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-600">Vendor Dashboard</Link>
+                )}
+                {user.role === "admin" && (
+                  <Link href="/admin" onClick={() => setMobileOpen(false)}
+                    className="block py-2.5 px-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-600">Admin Panel</Link>
+                )}
+                <button onClick={() => { handleLogout(); setMobileOpen(false); }}
+                  className="block w-full text-left py-2.5 px-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50">Sign Out</button>
+              </>
+            ) : (
+              <div className="flex gap-3 pt-1">
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full">Sign In</Button>
+                </Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)} className="flex-1">
+                  <Button size="sm" className="w-full bg-rose-500 hover:bg-rose-600 text-white">Get Started</Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </nav>

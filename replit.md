@@ -22,7 +22,7 @@ lib/
 - `/api` → API Server (Express, port 8080)
 
 ## Frontend Pages
-- **Home** — Hero, search, category grid, featured vendors, stats, CTA
+- **Home** — Full landing page: hero with image collage + floating cards, search bar, social proof, stats bar, live featured vendors (API), browse-by-category grid, how-it-works, trust strip, testimonials, CTA band
 - **Vendor Listing** — Filter sidebar (category/area/price/rating), search, pagination
 - **Vendor Profile** — Image gallery, packages, reviews, booking modal, WhatsApp link
 - **Login / Register** — JWT auth, role toggle (user/vendor)
