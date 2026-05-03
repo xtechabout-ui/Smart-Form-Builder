@@ -9,10 +9,12 @@ import {
   useGetVendorReviews, getGetVendorReviewsQueryKey,
   useCreateBooking, useCreateReview, useToggleFavorite,
   useGetFavorites, getGetFavoritesQueryKey,
+  useListVendors, getListVendorsQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { VendorCard } from "@/components/VendorCard";
 
 function formatPKR(n: number) {
   return `PKR ${n.toLocaleString("en-PK")}`;
@@ -67,6 +69,16 @@ export default function VendorProfile() {
   const createBooking = useCreateBooking();
   const createReview = useCreateReview();
   const toggleFav = useToggleFavorite();
+
+  // Similar vendors — same category, excluding current vendor
+  const similarParams = { category: vendor?.category, limit: 4 };
+  const { data: similarData } = useListVendors(similarParams, {
+    query: {
+      queryKey: getListVendorsQueryKey(similarParams),
+      enabled: !!vendor?.category,
+    },
+  });
+  const similarVendors = (similarData?.vendors ?? []).filter((v) => v.id !== vendorId).slice(0, 3);
 
   const [imgIndex, setImgIndex] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -439,6 +451,30 @@ export default function VendorProfile() {
           </aside>
         </div>
       </div>
+
+      {/* Similar Vendors */}
+      {similarVendors.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="border-t border-gray-100 pt-10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-rose-500 mb-1">You might also like</p>
+                <h2 className="font-display text-2xl font-bold text-gray-900">Similar {vendor.category} Vendors</h2>
+              </div>
+              <Link href={`/vendors?category=${encodeURIComponent(vendor.category)}`}>
+                <Button variant="outline" size="sm" className="rounded-xl border-gray-200 text-sm hidden sm:flex">
+                  See all <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {similarVendors.map((v) => (
+                <VendorCard key={v.id} vendor={v} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Booking Modal */}
       {bookingOpen && (

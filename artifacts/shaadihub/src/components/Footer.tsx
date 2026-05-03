@@ -57,7 +57,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-500">© 2024 ShaadiHub. All rights reserved. Karachi, Pakistan.</p>
+          <p className="text-sm text-gray-500">© 2026 ShaadiHub. All rights reserved. Karachi, Pakistan.</p>
           <p className="text-sm text-gray-500 flex items-center gap-1">
             Made with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> for couples in Karachi
           </p>

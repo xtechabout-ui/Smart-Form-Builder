@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearch, useLocation } from "wouter";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, MapPin, ArrowUpDown } from "lucide-react";
 import { useListVendors, getListVendorsQueryKey } from "@workspace/api-client-react";
 import { VendorCard } from "@/components/VendorCard";
 import { Button } from "@/components/ui/button";
@@ -16,20 +16,49 @@ const AREAS = [
   "Korangi", "Malir", "Bahria Town", "Scheme 33", "PECHS",
 ];
 
+const SORT_OPTIONS = [
+  { value: "", label: "Best Match" },
+  { value: "rating_desc", label: "Highest Rated" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+];
+
 export default function VendorListing() {
   const rawSearch = useSearch();
   const [, setLocation] = useLocation();
-  const params = new URLSearchParams(rawSearch);
 
-  const [search, setSearch] = useState(params.get("search") ?? "");
-  const [category, setCategory] = useState(params.get("category") ?? "");
-  const [area, setArea] = useState(params.get("area") ?? "");
-  const [minPrice, setMinPrice] = useState(params.get("minPrice") ?? "");
-  const [maxPrice, setMaxPrice] = useState(params.get("maxPrice") ?? "");
-  const [minRating, setMinRating] = useState(params.get("minRating") ?? "");
+  // Derive filter state from URL on every navigation
+  const getParams = () => new URLSearchParams(rawSearch);
+
+  const [search, setSearch] = useState(() => getParams().get("search") ?? "");
+  const [category, setCategory] = useState(() => getParams().get("category") ?? "");
+  const [area, setArea] = useState(() => getParams().get("area") ?? "");
+  const [minPrice, setMinPrice] = useState(() => getParams().get("minPrice") ?? "");
+  const [maxPrice, setMaxPrice] = useState(() => getParams().get("maxPrice") ?? "");
+  const [minRating, setMinRating] = useState(() => getParams().get("minRating") ?? "");
+  const [sortBy, setSortBy] = useState("");
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [inputSearch, setInputSearch] = useState(search);
+  const [inputSearch, setInputSearch] = useState(() => getParams().get("search") ?? "");
+
+  // Sync state whenever URL search string changes (e.g. navbar category link clicked while already on /vendors)
+  useEffect(() => {
+    const p = new URLSearchParams(rawSearch);
+    const newCategory = p.get("category") ?? "";
+    const newArea = p.get("area") ?? "";
+    const newSearch = p.get("search") ?? "";
+    setCategory(newCategory);
+    setArea(newArea);
+    setSearch(newSearch);
+    setInputSearch(newSearch);
+    setPage(1);
+  }, [rawSearch]);
+
+  // Build sort-derived query params
+  const sortParams: { sortBy?: string; sortDir?: string } = {};
+  if (sortBy === "rating_desc") { sortParams.sortBy = "rating"; sortParams.sortDir = "desc"; }
+  else if (sortBy === "price_asc") { sortParams.sortBy = "price"; sortParams.sortDir = "asc"; }
+  else if (sortBy === "price_desc") { sortParams.sortBy = "price"; sortParams.sortDir = "desc"; }
 
   const queryParams = {
     search: search || undefined,
@@ -40,6 +69,7 @@ export default function VendorListing() {
     minRating: minRating ? Number(minRating) : undefined,
     page,
     limit: 12,
+    ...sortParams,
   };
 
   const { data, isLoading } = useListVendors(queryParams, {
@@ -66,8 +96,22 @@ export default function VendorListing() {
     setPage(1);
   };
 
+  // Page title based on active category
+  const pageTitle = category ? category : "All Vendors";
+  const pageSubtitle = category
+    ? `Browse verified ${category.toLowerCase()} vendors in Karachi`
+    : "Browse all verified wedding vendors in Karachi";
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Page header */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="font-display text-2xl font-bold text-gray-900">{pageTitle}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{pageSubtitle}</p>
+        </div>
+      </div>
+
       {/* Top search bar */}
       <div className="bg-white border-b border-gray-100 shadow-sm sticky top-16 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -96,7 +140,7 @@ export default function VendorListing() {
               className={`rounded-xl flex items-center gap-2 ${filtersOpen ? "border-rose-400 text-rose-600 bg-rose-50" : ""}`}
             >
               <SlidersHorizontal className="h-4 w-4" />
-              Filters
+              <span className="hidden sm:inline">Filters</span>
               {activeFilters > 0 && (
                 <span className="bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                   {activeFilters}
@@ -194,17 +238,30 @@ export default function VendorListing() {
 
           {/* Main content */}
           <div className="flex-1 min-w-0">
-            {/* Results header */}
-            <div className="flex items-center justify-between mb-4">
+            {/* Results header with sort */}
+            <div className="flex items-center justify-between mb-4 gap-3">
               <div>
                 <p className="text-sm font-medium text-gray-700">
                   {isLoading ? "Loading..." : `${data?.total ?? 0} vendors found`}
                 </p>
                 {(search || category || area) && (
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {[search && `"${search}"`, category, area && <><MapPin className="inline w-3 h-3" /> {area}</>].filter(Boolean).join(" · ")}
+                    {[search && `"${search}"`, category, area].filter(Boolean).join(" · ")}
                   </p>
                 )}
+              </div>
+              {/* Sort dropdown */}
+              <div className="flex items-center gap-2 shrink-0">
+                <ArrowUpDown className="w-4 h-4 text-gray-400 hidden sm:block" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                  className="rounded-xl border border-gray-200 text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-rose-300 text-gray-700 cursor-pointer"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

@@ -5,10 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
-  { label: "Venues", href: "/vendors" },
+  { label: "Venues", href: "/vendors?category=Marriage%20Hall" },
   { label: "Vendors", href: "/vendors" },
-  { label: "Photography", href: "/vendors" },
-  { label: "Inspiration", href: "/vendors" },
+  { label: "Photography", href: "/vendors?category=Photography" },
+  { label: "Inspiration", href: "/vendors?category=Decoration" },
 ];
 
 export function Navbar() {
