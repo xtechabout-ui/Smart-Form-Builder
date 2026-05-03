@@ -20,7 +20,6 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rose-gradient rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
               <Heart className="w-4 h-4 text-white fill-white" />
@@ -28,20 +27,6 @@ export function Navbar() {
             <span className="font-display text-xl font-bold text-rose-600">ShaadiHub</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/vendors" className="text-sm font-medium text-gray-600 hover:text-rose-600 transition-colors">
-              Find Vendors
-            </Link>
-            <Link href="/vendors?category=Marriage Hall" className="text-sm font-medium text-gray-600 hover:text-rose-600 transition-colors">
-              Venues
-            </Link>
-            <Link href="/vendors?category=Photography" className="text-sm font-medium text-gray-600 hover:text-rose-600 transition-colors">
-              Photography
-            </Link>
-          </div>
-
-          {/* Auth */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="relative">
@@ -101,7 +86,6 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
           <button
             data-testid="mobile-menu-button"
             className="md:hidden p-2 rounded-lg hover:bg-rose-50"
@@ -112,7 +96,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white border-t border-rose-100 px-4 py-4 space-y-2">
           <Link href="/vendors" onClick={() => setMobileOpen(false)}
