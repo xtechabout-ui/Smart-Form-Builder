@@ -5,10 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
-  { label: "Venues", href: "/vendors?category=Marriage%20Hall" },
+  { label: "Venues", href: "/vendors" },
   { label: "Vendors", href: "/vendors" },
-  { label: "Photography", href: "/vendors?category=Photography" },
-  { label: "Inspiration", href: "/vendors?category=Decoration" },
+  { label: "Photography", href: "/vendors" },
+  { label: "Inspiration", href: "/vendors" },
 ];
 
 export function Navbar() {
@@ -28,7 +28,6 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
             <div className="w-8 h-8 rose-gradient rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
               <Heart className="w-4 h-4 text-white fill-white" />
@@ -36,22 +35,23 @@ export function Navbar() {
             <span className="font-display text-xl font-bold text-rose-600">ShaadiHub</span>
           </Link>
 
-          {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => {
-              const active = location === link.href || location.startsWith(link.href.split("?")[0]);
+              const active = location === link.href;
               return (
-                <Link key={link.label} href={link.href}
+                <Link
+                  key={link.label}
+                  href={link.href}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                     active ? "bg-rose-50 text-rose-600" : "text-gray-600 hover:text-rose-600 hover:bg-rose-50"
-                  }`}>
+                  }`}
+                >
                   {link.label}
                 </Link>
               );
             })}
           </div>
 
-          {/* Auth area */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="relative">
@@ -111,7 +111,6 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile hamburger */}
           <button
             data-testid="mobile-menu-button"
             className="md:hidden p-2 rounded-lg hover:bg-rose-50"
@@ -122,7 +121,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white border-t border-rose-100 px-4 py-4 space-y-1">
           {NAV_LINKS.map((link) => (
